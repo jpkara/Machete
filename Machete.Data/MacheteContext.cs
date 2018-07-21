@@ -60,6 +60,13 @@ namespace Machete.Data
         public DbSet<ReportDefinition> ReportDefinitions { get; set; }
         public DbSet<TransportProvider> TransportProviders { get; set; }
         public DbSet<TransportProviderAvailability> TransportProvidersAvailability { get; set; }
+        public DbSet<TransportVehicle> TransportVehicles { get; set; }
+        public DbSet<TransportVehicleAvailability> TransportVehicleAvailabilities { get; set; }
+        public DbSet<TransportVehicleAvailabilityOverride> TransportVehicleAvailabilityOverrides { get; set; }
+        public DbSet<TransportVehicleAvailabilityTimeBlock> TransportVehicleAvailabilityTimeBlocks { get; set; }
+        public DbSet<TransportVehicleAvailabilityOverrideTimeBlock> TransportVehicleAvailabilityOverrideTimeBlocks { get; set; }
+        public DbSet<TransportVehicleSchedule> TransportVehicleSchedules { get; set; }
+
         public DbSet<TransportRule> TransportRules { get; set; }
         public DbSet<TransportCostRule> TransportCostRules { get; set; }
         public DbSet<ScheduleRule> ScheduleRules { get; set; }
@@ -279,9 +286,13 @@ namespace Machete.Data
         {
             HasKey(k => k.ID);
             HasMany(e => e.AvailabilityRules)          //define the parent
-            .WithRequired(w => w.Provider)      //Virtual property definition
-            .HasForeignKey(w => w.transportProviderID)   //DB foreign key definition
-            .WillCascadeOnDelete();
+                .WithRequired(w => w.Provider)      //Virtual property definition
+                .HasForeignKey(w => w.transportProviderID)   //DB foreign key definition
+                .WillCascadeOnDelete();
+            HasMany(e => e.TransportVehicles)
+                .WithRequired(w => w.TransportProvider)
+                .HasForeignKey(w => w.transportProviderID)
+                .WillCascadeOnDelete();
         }
     }
 
@@ -315,6 +326,69 @@ namespace Machete.Data
             HasRequired(k => k.transportRule)
                 .WithMany(c => c.costRules)
                 .HasForeignKey(k => k.transportRuleID);
+        }
+    }
+
+    public class TransportVehicleBuilder : EntityTypeConfiguration<TransportVehicle>
+    {
+        public TransportVehicleBuilder()
+        {
+            HasKey(k => k.ID);
+
+        }
+    }
+
+    public class TransportVehicleAvailabilityBuilder : EntityTypeConfiguration<TransportVehicleAvailability>
+    {
+        public TransportVehicleAvailabilityBuilder()
+        {
+            HasKey(k => k.ID);
+
+        }
+    }
+
+    public class TransportVehicleAvailabilityOverrideBuilder : EntityTypeConfiguration<TransportVehicleAvailabilityOverride>
+    {
+        public TransportVehicleAvailabilityOverrideBuilder()
+        {
+            HasKey(k => k.ID);
+
+        }
+    }
+
+    public class TransportVehicleAvailabilityTimeBlockBuilder : EntityTypeConfiguration<TransportVehicleAvailabilityTimeBlock>
+    {
+        public TransportVehicleAvailabilityTimeBlockBuilder()
+        {
+            HasKey(k => k.ID);
+
+        }
+    }
+
+    public class TransportVehicleAvailabilityOverrideTimeBlockBuilder : EntityTypeConfiguration<TransportVehicleAvailabilityOverrideTimeBlock>
+    {
+        public TransportVehicleAvailabilityOverrideTimeBlockBuilder()
+        {
+            HasKey(k => k.ID);
+
+        }
+    }
+
+    public class TransportVehicleScheduleBuilder : EntityTypeConfiguration<TransportVehicleSchedule>
+    {
+        public TransportVehicleScheduleBuilder()
+        {
+            HasKey(k => k.ID);
+
+        }
+    }
+
+    public class JoinTransportVehicleScheduleWorkOrderBuilder : EntityTypeConfiguration<JoinTransportVehicleScheduleWorkOrder>
+    {
+        public JoinTransportVehicleScheduleWorkOrderBuilder()
+        {
+            HasKey(k => k.ID);
+
         }
     }
 

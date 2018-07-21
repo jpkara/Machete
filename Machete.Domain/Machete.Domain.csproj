@@ -274,7 +274,7 @@
     <Compile Include="Entities\Activity.cs" />
     <Compile Include="Entities\Attributes\Attribute.cs" />
     <Compile Include="Entities\Attributes\TransportProvider.cs" />
-    <Compile Include="Entities\Attributes\TransportProviderAvailability.cs" />
+    <Compile Include="Entities\TransportProviderAvailability.cs" />
     <Compile Include="Entities\ClientLogging.cs" />
     <Compile Include="Entities\Config.cs" />
     <Compile Include="Entities\Email.cs" />
@@ -290,6 +290,10 @@
     <Compile Include="Entities\Rules\SkillRule.cs" />
     <Compile Include="Entities\Rules\TransportCostRule.cs" />
     <Compile Include="Entities\Rules\TransportRule.cs" />
+    <Compile Include="Entities\TransportVehicle.cs" />
+    <Compile Include="Entities\TransportVehicleAvailability.cs" />
+    <Compile Include="Entities\TransportVehicleAvailabilityTimeBlock.cs" />
+    <Compile Include="Entities\TransportVehicleSchedule.cs" />
     <Compile Include="Entities\WorkAssignment.cs" />
     <Compile Include="Entities\Worker.cs" />
     <Compile Include="Entities\WorkerRequest.cs" />
