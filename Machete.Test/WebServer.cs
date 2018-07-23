@@ -77,7 +77,9 @@ namespace Machete.Test
         {
             if (_iisProcess != null && _iisProcess.HasExited != true)
             {
-                _iisProcess.CloseMainWindow(); _iisProcess.Dispose();
+                _iisProcess.CloseMainWindow();
+                _iisProcess.Kill();
+                _iisProcess.Dispose();
             }
         }
         public static string GetApplicationPath(string applicationName)

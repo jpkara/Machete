@@ -11,6 +11,7 @@ namespace Machete.Test
         public const string UT = "Type-UnitTest";
         public const string SE = "Type-SeleniumTest";
         public const string Fluent = "Type-Fluent";
+        public const string E2E = "Type-End2End";
         //
         //
         public const string Service = "Layer-Service";
@@ -36,5 +37,6 @@ namespace Machete.Test
         public const string Configs = "Area-Configs";
         public const string TransportRules = "Area-TransportRules";
         public const string ScheduleRules = "Area-ScheduleRules";
+        public const string TestHarness = "Area-TestHarness";
     }
 }
