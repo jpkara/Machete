@@ -20,11 +20,13 @@ namespace Machete.Test.Selenium.View
         private sharedUI ui;
         private FluentRecordBase frb;
         private static IMapper map;
+        private static IISExpress iis;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
-            WebServer.StartIis();
+            iis = new IISExpress("Machete.Web", "4213");
+            iis.StartIis();
             map = new Machete.Web.MapperConfig().getMapper();
         }
 
@@ -47,18 +49,10 @@ namespace Machete.Test.Selenium.View
             Assert.AreEqual("", verificationErrors.ToString());
             ui.WaitForElement(By.LinkText("Logoff"));
             driver.FindElement(By.LinkText("Logoff")).Click();
-            try
-            {
-                driver.Quit();
-            }
-            catch (Exception)
-            {
-                // Ignore errors if unable to close the browser
-            }
-
+            driver.Quit();
         }
         [ClassCleanup]
-        public static void ClassCleanup() { WebServer.StopIis(); }
+        public static void ClassCleanup() { iis.StopIis(); }
         /// <summary>
         /// 
         /// 

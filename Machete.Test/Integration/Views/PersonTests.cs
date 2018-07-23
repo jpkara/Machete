@@ -23,6 +23,7 @@ namespace Machete.Test.Selenium.View
         private static string testimagefile;
         FluentRecordBase frb;
         static IMapper map;
+        private static IISExpress iis;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext) {
@@ -31,7 +32,8 @@ namespace Machete.Test.Selenium.View
             testimagefile = solutionDirectory + "\\jimmy_machete.jpg";
             map = new Machete.Web.MapperConfig().getMapper();
 
-            WebServer.StartIis();
+            iis = new IISExpress("Machete.Web", "4213");
+            iis.StartIis();
         }
 
         [TestInitialize]
@@ -53,18 +55,12 @@ namespace Machete.Test.Selenium.View
             //// Loggoff
             ui.WaitForElement(By.LinkText("Logoff"));
             driver.FindElement(By.LinkText("Logoff")).Click();
-            try
-            {
-                driver.Quit();
-            }
-            catch (Exception)
-            {
-                // Ignore errors if unable to close the browser/.ujhkmn,.
-            }
+            driver.Quit();
+            
             Assert.AreEqual("", verificationErrors.ToString());
         }
         [ClassCleanup]
-        public static void ClassCleanup() { WebServer.StopIis();  }
+        public static void ClassCleanup() { iis.StopIis();  }
 
         [TestMethod, TestCategory(TC.SE), TestCategory(TC.View), TestCategory(TC.Persons)]
         public void SePerson_create_person()

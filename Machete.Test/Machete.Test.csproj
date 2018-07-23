@@ -388,7 +388,7 @@
     <Compile Include="UnitTests\Services\ImageServiceUnitTests.cs" />
     <Compile Include="UnitTests\Services\PersonServiceUnitTests.cs" />
     <Compile Include="UnitTests\Services\WorkOrderServiceTests.cs" />
-    <Compile Include="WebServer.cs" />
+    <Compile Include="IISExpress.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Api\Api.csproj">

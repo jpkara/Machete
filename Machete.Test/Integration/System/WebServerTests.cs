@@ -18,12 +18,17 @@ namespace Machete.Test.Integration.System
         //private sharedUI ui;
         private FluentRecordBase frb;
         //private static IMapper map;
+        private static IISExpress iis;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
-            WebServer.StartIis();
+            iis = new IISExpress("Machete.Web", "4213");
+            iis.StartIis();
         }
+
+        [TestInitialize]
+        public void TestInitialize() { }
 
         [TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
         public async Task E2E_WebServer_Starts()
@@ -38,6 +43,6 @@ namespace Machete.Test.Integration.System
         }
 
         [ClassCleanup]
-        public static void ClassCleanup() { WebServer.StopIis(); }
+        public static void ClassCleanup() { iis.StopIis(); }
     }
 }

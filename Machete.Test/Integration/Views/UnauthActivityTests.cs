@@ -22,10 +22,13 @@ namespace Machete.Test.Selenium.View
         private sharedUI ui;
         FluentRecordBase frb;
         static IMapper map;
+        private static IISExpress iis;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
+            iis = new IISExpress("Machete.Web", "4213");
+            iis.StartIis();
             map = new Machete.Web.MapperConfig().getMapper();
             WebServer.StartIis();
         }
@@ -46,18 +49,11 @@ namespace Machete.Test.Selenium.View
         [TestCleanup]
         public void TeardownTest()
         {
-            try
-            {
-                driver.Quit();
-            }
-            catch (Exception)
-            {
-                //ignoring errors if we can't close the browser.
-            }
+            driver.Quit();
         }
 
         [ClassCleanup]
-        public static void ClassCleanup() { WebServer.StopIis(); }
+        public static void ClassCleanup() { iis.StopIis(); }
 
         // BRIAN TODO
         // -------------------------------------------------------------------------logout
