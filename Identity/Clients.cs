@@ -157,6 +157,19 @@ namespace Machete.Identity
 
                 AllowAccessToAllScopes = true,
                 AccessTokenLifetime = 3600
+            },
+            new Client
+            {
+                Enabled = true,
+                ClientName = "tests",
+                ClientId = "tests",
+                ClientSecrets = new List<Secret>()
+                {
+                    new Secret("foo".Sha256())
+                },
+                AllowAccessToAllScopes = true,
+                AccessTokenLifetime = 3600,
+                Flow = Flows.ClientCredentials
             }
 
         };

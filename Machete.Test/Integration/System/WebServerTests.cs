@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Web;
 using Microsoft.Owin.Security;
 using System.IdentityModel.Tokens.Jwt;
+using IdentityModel.Client;
 
 namespace Machete.Test.Integration.System
 {
@@ -76,12 +77,13 @@ namespace Machete.Test.Integration.System
             var response = await client.GetAsync("/id/.well-known/openid-configuration");
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
+
         [TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
         public async Task foo()
         {
             var client = new HttpClient();
             var dic = new Dictionary<string, string>();
-            dic.Add("client_id", "mvc");
+            dic.Add("client_id", "machete-ui-local-embedded");
             dic.Add("client_secret", "secret");
             dic.Add("grant_type", "password");
             dic.Add("scope", "openid profile");
@@ -109,6 +111,35 @@ namespace Machete.Test.Integration.System
 
             //return Redirect("Index");
         }
+
+        [TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
+        public async Task E2E_authN_succeeds()
+        {
+            var client = new HttpClient();
+
+            var disco = await client.GetDiscoveryDocumentAsync("https://localhost:44379/id");
+            if (disco.IsError) throw new Exception(disco.Error);
+
+            var tokenEndpoint = disco.TokenEndpoint;
+            var keys = disco.KeySet.Keys;
+
+            var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+
+                ClientId = "tests",
+                ClientSecret = "foo",
+                Scope = "api"
+            });
+
+            if (response.IsError) throw new Exception(response.Error);
+            var token = response.AccessToken;
+            var jwt = new JwtSecurityToken(token);
+            Assert.AreEqual(HttpStatusCode.OK, response.HttpStatusCode);
+            Assert.IsNotNull(token);
+            Assert.AreEqual("Bearer", response.TokenType);
+        }
+
         [ClassCleanup]
         public static void ClassCleanup() {
             web.StopIis();
