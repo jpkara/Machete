@@ -167,9 +167,13 @@ namespace Machete.Identity
                 {
                     new Secret("foo".Sha256())
                 },
-                AllowAccessToAllScopes = true,
+                AllowAccessToAllScopes = true,               
                 AccessTokenLifetime = 3600,
-                Flow = Flows.ClientCredentials
+                Flow = Flows.ResourceOwner,
+                AllowedCorsOrigins = new List<string>
+                {
+                    "*"
+                },
             }
 
         };

@@ -28,15 +28,20 @@ namespace Machete.Test.Integration.System
         private static IISExpress api;
         private static IISExpress idp;
 
+        private static string idpEndpoint;
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
+            // accept invalid certs
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
             web = new IISExpress("Machete.Web", "4214");
             api = new IISExpress("Api", "63374");
             idp = new IISExpress("Identity", "63273");
             web.StartIis();
             api.StartIis();
             idp.StartIis();
+            idpEndpoint = "https://localhost:44379/id";
         }
 
         [TestInitialize]
@@ -57,6 +62,7 @@ namespace Machete.Test.Integration.System
         [TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
         public async Task E2E_API_Starts()
         {
+
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:63374");
             client.DefaultRequestHeaders.Accept.Clear();
@@ -70,11 +76,11 @@ namespace Machete.Test.Integration.System
         public async Task E2E_IDP_Starts()
         {
             HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:44379");
+            //client.BaseAddress = new Uri("");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
-            var response = await client.GetAsync("/id/.well-known/openid-configuration");
+            var response = await client.GetAsync("https://localhost:44379/id/.well-known/openid-configuration");
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -91,8 +97,8 @@ namespace Machete.Test.Integration.System
             dic.Add("password", "ChangeMe");
 
             var content = new FormUrlEncodedContent(dic);
-            client.BaseAddress = new Uri("https://localhost:44379");
-            var msg = client.PostAsync("/id/connect/token", content).Result.Content.ReadAsStringAsync().Result;
+            client.BaseAddress = new Uri(idpEndpoint);
+            var msg = client.PostAsync("/connect/token", content).Result.Content.ReadAsStringAsync().Result;
             string token = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(msg).access_token;
             
             var jwt = new JwtSecurityToken(token);
@@ -112,32 +118,66 @@ namespace Machete.Test.Integration.System
             //return Redirect("Index");
         }
 
+        //[TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
+        //public async Task E2E_Client_authN_succeeds()
+        //{
+        //    var client = new HttpClient();
+
+        //    var disco = await client.GetDiscoveryDocumentAsync(idpEndpoint);
+        //    if (disco.IsError) throw new Exception(disco.Error);
+
+        //    var tokenEndpoint = disco.TokenEndpoint;
+        //    var keys = disco.KeySet.Keys;
+
+        //    var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+        //    {
+        //        Address = disco.TokenEndpoint,
+
+        //        ClientId = "tests",
+        //        ClientSecret = "foo",
+        //        Scope = "api"
+        //    });
+
+        //    if (response.IsError) throw new Exception(response.Error);
+        //    var token = response.AccessToken;
+        //    var jwt = new JwtSecurityToken(token);
+        //    Assert.AreEqual(HttpStatusCode.OK, response.HttpStatusCode);
+        //    Assert.IsNotNull(token);
+        //    Assert.AreEqual("Bearer", response.TokenType);
+        //}
+
         [TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
-        public async Task E2E_authN_succeeds()
+        public async Task E2E_username_and_password_succeeds()
         {
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
             var client = new HttpClient();
 
-            var disco = await client.GetDiscoveryDocumentAsync("https://localhost:44379/id");
+            var disco = await client.GetDiscoveryDocumentAsync(idpEndpoint);
             if (disco.IsError) throw new Exception(disco.Error);
 
             var tokenEndpoint = disco.TokenEndpoint;
-            var keys = disco.KeySet.Keys;
 
-            var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = disco.TokenEndpoint,
-
-                ClientId = "tests",
-                ClientSecret = "foo",
-                Scope = "api"
-            });
+            var response = await client.RequestPasswordTokenAsync(
+                new PasswordTokenRequest() {
+                    Address = disco.TokenEndpoint,
+                    UserName = "jadmin",
+                    Password = "ChangeMe",
+                    ClientId = "tests",
+                    ClientSecret = "foo",
+                    Scope = "api"
+                });
 
             if (response.IsError) throw new Exception(response.Error);
             var token = response.AccessToken;
             var jwt = new JwtSecurityToken(token);
             Assert.AreEqual(HttpStatusCode.OK, response.HttpStatusCode);
-            Assert.IsNotNull(token);
-            Assert.AreEqual("Bearer", response.TokenType);
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response2 = await client.GetAsync("http://localhost:63374/api/reports");
+            var content = await response2.Content.ReadAsStringAsync();
+            Assert.AreEqual(HttpStatusCode.OK, response2.StatusCode);
+            Assert.IsNotNull(content);
         }
 
         [ClassCleanup]
