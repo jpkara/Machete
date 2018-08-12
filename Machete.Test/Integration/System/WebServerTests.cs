@@ -84,40 +84,6 @@ namespace Machete.Test.Integration.System
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
-        [TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
-        public async Task foo()
-        {
-            var client = new HttpClient();
-            var dic = new Dictionary<string, string>();
-            dic.Add("client_id", "machete-ui-local-embedded");
-            dic.Add("client_secret", "secret");
-            dic.Add("grant_type", "password");
-            dic.Add("scope", "openid profile");
-            dic.Add("username", "jadmin");
-            dic.Add("password", "ChangeMe");
-
-            var content = new FormUrlEncodedContent(dic);
-            client.BaseAddress = new Uri(idpEndpoint);
-            var msg = client.PostAsync("/connect/token", content).Result.Content.ReadAsStringAsync().Result;
-            string token = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(msg).access_token;
-            
-            var jwt = new JwtSecurityToken(token);
-            var identity = new ClaimsIdentity("ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            foreach (var c in jwt.Claims)
-            {
-                var t = c.Type;
-                var v = c.Value;
-
-                identity.AddClaim(new Claim(t, v));
-
-            }
-            IAuthenticationManager authenticationManager = HttpContext.Current.GetOwinContext().Authentication;
-            authenticationManager.SignOut("ApplicationCookie");
-            authenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = false }, identity);
-
-            //return Redirect("Index");
-        }
-
         //[TestMethod, TestCategory(TC.E2E), TestCategory(TC.Controller), TestCategory(TC.TestHarness)]
         //public async Task E2E_Client_authN_succeeds()
         //{
