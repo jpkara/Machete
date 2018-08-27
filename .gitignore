@@ -90,3 +90,7 @@ Machete.Test/BeanShell Sampler.jmx
 .vscode/
 */node_modules/*
 
+
+UI/
+
+Machete\.Web/Content/bundles/
