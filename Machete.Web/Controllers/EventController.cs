@@ -137,19 +137,19 @@ namespace Machete.Web.Controllers
 
         [HttpPost, UserNameFilter]
         [Authorize(Roles = "Administrator, Manager")]
-        public ActionResult Edit(int id, string user)
+        public ActionResult Edit(int id, string userName)
         {
             Event evnt = _serv.Get(id);
             UpdateModel(evnt);
-            _serv.Save(evnt, user);
+            _serv.Save(evnt, userName);
   
             return Json(new { status = "OK" }, JsonRequestBehavior.AllowGet);
         }
         //
         // AddImage
-        [HttpPost]
+        [HttpPost, UserNameFilter]
         [Authorize(Roles = "Administrator, Manager")]
-        public ActionResult AddImage(int id, string user, HttpPostedFileBase imagefile)
+        public ActionResult AddImage(int id, string userName, HttpPostedFileBase imagefile)
         {
             if (imagefile == null) throw new MacheteNullObjectException("AddImage called with null imagefile");
             JoinEventImage joiner = new JoinEventImage();
@@ -164,17 +164,17 @@ namespace Machete.Web.Controllers
             imagefile.InputStream.Read(image.ImageData,
                                        0,
                                        imagefile.ContentLength);
-            Image newImage = iServ.Create(image, user);
+            Image newImage = iServ.Create(image, userName);
             joiner.ImageID = newImage.ID;
             joiner.EventID = evnt.ID;
             joiner.datecreated = DateTime.Now;
             joiner.dateupdated = DateTime.Now;
-            joiner.updatedby = user;
-            joiner.createdby = user;
+            joiner.updatedby = userName;
+            joiner.createdby = userName;
             // TODO: This tightly couples the MVC straight down to EF. 
             // breaks layering. Should be abstracted.
             evnt.JoinEventImages.Add(joiner);
-            _serv.Save(evnt, user);
+            _serv.Save(evnt, userName);
             var foo = iServ.Get(newImage.ID).ImageData;
             
             return Json(new
